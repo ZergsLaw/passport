@@ -1,0 +1,44 @@
+= login
+
+== Link
+:hide-uri-scheme:
+If you have questions about this application, there was a bug or there are suggestions for improvement, then you can ask it in Issues, or in link:telegram[https://t.me/zergsLaw]
+
+== Library for embedding oauth registration into your service.
+
+=== EXAMPLE
+
+[source,go]
+----
+googleClient := google.New(googleCfg)
+yandexClient := yandex.New(yandexCfg)
+githubClient := github.New(githubCfg)
+
+login := login.New(
+	login.OAuthClient(google.ID, googleClient),
+	login.OAuthClient(yandex.ID, yandexClient),
+	login.OAuthClient(github.ID, githubClient),
+)
+
+code := "AUTH_CODE"
+val := github.Account{} // Or you dest.
+err := login.Auth(github.ID).Do(code, &val)
+if err != nil {
+	log.Fatal(err)
+}
+----
+
+=== Adding their social networks.
+
+For extension, create an OauthClient implementing interface object and add it to the Core object via options.
+
+[source,go]
+----
+// OauthClient the interface to the oauth server.
+// Returns the status and body of the request.
+OauthClient interface {
+	Account(ctx context.Context, code string) (status int, body io.ReadCloser, err error)
+}
+----
+
+
