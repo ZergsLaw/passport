@@ -1,4 +1,4 @@
-module github.com/ZergsLaw/login
+module github.com/ZergsLaw/passport
 
 go 1.14
 

@@ -1,4 +1,4 @@
-package login
+package passport
 
 // Option options for configuring the library core.
 type Option func(*Core)

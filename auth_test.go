@@ -1,4 +1,4 @@
-package login_test
+package passport_test
 
 import (
 	"bytes"
@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ZergsLaw/login"
-	"github.com/ZergsLaw/login/mock"
+	"github.com/ZergsLaw/passport"
+	"github.com/ZergsLaw/passport/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
@@ -39,9 +39,9 @@ const (
 `
 	jsonErr = `{"err_description":"not found"}`
 
-	oAuthMockID    login.SocialID = "mock"
-	unknownOAuthID login.SocialID = "unknown"
-	oAuthCode                     = "123456"
+	oAuthMockID    passport.SocialID = "mock"
+	unknownOAuthID passport.SocialID = "unknown"
+	oAuthCode                        = "123456"
 )
 
 func TestAuth_Do(t *testing.T) {
@@ -50,7 +50,7 @@ func TestAuth_Do(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuth := mock.NewOauthClient(ctrl)
-	core := login.New(login.OAuthClient(oAuthMockID, mockAuth))
+	core := passport.New(passport.OAuthClient(oAuthMockID, mockAuth))
 	ctx := context.Background()
 	assert := require.New(t)
 	anyErr := errors.New("any error")
@@ -58,7 +58,7 @@ func TestAuth_Do(t *testing.T) {
 	expectRes := &mockAccount{}
 	err := json.Unmarshal([]byte(jsonAccount), expectRes)
 	assert.NoError(err)
-	oAuthError := &login.OAuthErr{}
+	oAuthError := &passport.OAuthErr{}
 	err = json.Unmarshal([]byte(jsonErr), &oAuthError.Value)
 	assert.NoError(err)
 
@@ -70,14 +70,13 @@ func TestAuth_Do(t *testing.T) {
 	mockAuth.EXPECT().Account(ctx, oAuthCode).Return(http.StatusNotFound, errBody, nil)
 
 	testCases := []struct {
-		name string
-		id   login.SocialID
-
+		name         string
+		id           passport.SocialID
 		expectResult *mockAccount
 		expectErr    error
 	}{
 		{"success", oAuthMockID, expectRes, nil},
-		{"unknown_oauth_client", unknownOAuthID, nil, login.ErrUnknownOAuthClient},
+		{"unknown_oauth_client", unknownOAuthID, nil, passport.ErrUnknownOAuthClient},
 		{"any_error_from_oauth_server", oAuthMockID, nil, anyErr},
 		{"status_not_ok", oAuthMockID, nil, oAuthError},
 	}

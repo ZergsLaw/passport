@@ -1,4 +1,4 @@
-= login
+= Passport.
 
 == Link
 :hide-uri-scheme:
@@ -14,10 +14,10 @@ googleClient := google.New(googleCfg)
 yandexClient := yandex.New(yandexCfg)
 githubClient := github.New(githubCfg)
 
-login := login.New(
-	login.OAuthClient(google.ID, googleClient),
-	login.OAuthClient(yandex.ID, yandexClient),
-	login.OAuthClient(github.ID, githubClient),
+login := passport.New(
+	passport.OAuthClient(google.ID, googleClient),
+	passport.OAuthClient(yandex.ID, yandexClient),
+	passport.OAuthClient(github.ID, githubClient),
 )
 
 code := "AUTH_CODE"

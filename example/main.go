@@ -3,13 +3,13 @@ package main
 import (
 	"log"
 
-	"github.com/ZergsLaw/login"
-	"github.com/ZergsLaw/login/modules/github"
+	"github.com/ZergsLaw/passport"
+	"github.com/ZergsLaw/passport/modules/github"
 )
 
 // nolint:gochecknoglobals
 var (
-	githubCfg = login.Config{
+	githubCfg = passport.Config{
 		ClientID:     "YOU_APP_ID",
 		ClientSecret: "YOU_SECRET_KEY",
 		RedirectURI:  "https://oauth2.example.com/",
@@ -20,8 +20,8 @@ var (
 func main() {
 	githubClient := github.New(githubCfg)
 
-	login := login.New(
-		login.OAuthClient(github.ID, githubClient),
+	login := passport.New(
+		passport.OAuthClient(github.ID, githubClient),
 	)
 
 	code := "AUTH_CODE"

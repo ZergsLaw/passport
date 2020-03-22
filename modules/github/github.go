@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/ZergsLaw/login"
+	"github.com/ZergsLaw/passport"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
@@ -63,10 +63,10 @@ type (
 	}
 )
 
-const ID login.SocialID = "Github"
+const ID passport.SocialID = "Github"
 
 // New creates and returns OAuth client.
-func New(cfg login.Config) login.OauthClient {
+func New(cfg passport.Config) passport.OauthClient {
 	return &client{
 		cfg: oauth2.Config{
 			ClientID:     cfg.ClientID,
