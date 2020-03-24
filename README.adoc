@@ -6,39 +6,64 @@ If you have questions about this application, there was a bug or there are sugge
 
 == Library for embedding oauth registration into your service.
 
-=== EXAMPLE
+=== Quick start.
 
 [source,go]
 ----
-googleClient := google.New(googleCfg)
-yandexClient := yandex.New(yandexCfg)
-githubClient := github.New(githubCfg)
-
 login := passport.New(
-	passport.OAuthClient(google.ID, googleClient),
-	passport.OAuthClient(yandex.ID, yandexClient),
-	passport.OAuthClient(github.ID, githubClient),
+	github.OAuth(githubCfg),
 )
 
+ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+defer cancel()
+
 code := "AUTH_CODE"
-val := github.Account{} // Or you dest.
-err := login.Auth(github.ID).Do(code, &val)
+
+account, token, err := login.Account(ctx, github.ID, code)
 if err != nil {
 	log.Fatal(err)
 }
+
+log.Println("account:", account)
+log.Println("token type:", token.TokenType)
 ----
 
-=== Adding their social networks.
+=== Mini tutorial.
 
-For extension, create an OauthClient implementing interface object and add it to the Core object via options.
+Initiate a module for a social network.
 
 [source,go]
-----
-// OauthClient the interface to the oauth server.
-// Returns the status and body of the request.
-OauthClient interface {
-	Account(ctx context.Context, code string) (status int, body io.ReadCloser, err error)
+-----
+githubClient := github.New(githubCfg)
+-----
+
+You initiate the library.
+[source,go]
+-----
+login := passport.New(
+	// The parameters are used to transmit the social network required for its operation and assign id.
+	passport.OAuthClient(github.ID, githubClient),
+	// or use a wrapper that all standard modules have.
+	github.OAuth(githubCfg),
+)
+-----
+
+To expand the library with its modules, all you have to do is implement this interface.
+You initiate the library.
+[source,go]
+-----
+type OauthClient interface {
+    Token(ctx context.Context, code string) (*oauth2.Token, error)
+    Account(ctx context.Context, token *oauth2.Token) (*Account, error)
 }
-----
+-----
+
+And when initializing the application, send your social network by the parameter.
+[source,go]
+-----
+login := passport.New(
+	passport.OAuthClient(youID, youSocialClient),
+)
+-----
 
 

@@ -1,34 +1,51 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/ZergsLaw/passport"
 	"github.com/ZergsLaw/passport/modules/github"
 )
 
-// nolint:gochecknoglobals
 var (
-	githubCfg = passport.Config{
-		ClientID:     "YOU_APP_ID",
-		ClientSecret: "YOU_SECRET_KEY",
+	githubCfg = passport.OAuthConfig{
+		ClientID:     "GITHUB_APP_ID",
+		ClientSecret: "GITHUB_SECRET_KEY",
+		RedirectURI:  "https://oauth2.example.com/",
+		Scope:        []string{"YOU SCOPE"},
+	}
+	googleCfg = passport.OAuthConfig{
+		ClientID:     "GOOGLE_APP_ID",
+		ClientSecret: "GOOGLE_SECRET_KEY",
 		RedirectURI:  "https://oauth2.example.com/",
 		Scope:        []string{"YOU SCOPE"},
 	}
 )
 
 func main() {
-	githubClient := github.New(githubCfg)
+	githubCfg = passport.OAuthConfig{
+		ClientID:     "GITHUB_APP_ID",
+		ClientSecret: "GITHUB_SECRET_KEY",
+		RedirectURI:  "https://oauth2.example.com/",
+		Scope:        []string{"YOU SCOPE"},
+	}
 
 	login := passport.New(
-		passport.OAuthClient(github.ID, githubClient),
+		github.OAuth(githubCfg),
 	)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 
 	code := "AUTH_CODE"
 
-	val := github.Account{}
-	err := login.Auth(github.ID).Do(code, &val)
+	account, token, err := login.Account(ctx, github.ID, code)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println("account:", account)
+	log.Println("token type:", token.TokenType)
 }

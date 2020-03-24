@@ -9,10 +9,3 @@ func OAuthClient(id SocialID, client OauthClient) Option {
 		core.oauthClients[id] = client
 	}
 }
-
-// MaxBodySize sets the maximum size of data reading from the oauth server.
-func MaxBodySize(maxBodySize int64) Option {
-	return func(core *Core) {
-		core.maxBodySize = maxBodySize
-	}
-}

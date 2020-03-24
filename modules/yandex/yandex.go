@@ -2,9 +2,9 @@ package yandex
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io"
-	"time"
+	"net/http"
 
 	"github.com/ZergsLaw/passport"
 	"golang.org/x/oauth2"
@@ -16,26 +16,17 @@ type (
 		cfg oauth2.Config
 	}
 
-	Account struct {
-		ID              string    `json:"id"`
-		FirstName       string    `json:"first_name"`
-		LastName        string    `json:"last_name"`
-		DisplayName     string    `json:"display_name"`
-		Emails          []string  `json:"emails"`
-		DefaultEmail    string    `json:"default_email"`
-		RealName        string    `json:"real_name"`
-		IsAvatarEmpty   bool      `json:"is_avatar_empty"`
-		BirthDay        time.Time `json:"birth_day"`
-		DefaultAvatarID string    `json:"default_avatar_id"`
-		Login           string    `json:"login"`
-		Sex             string    `json:"sex"`
+	account struct {
+		ID           string `json:"id"`
+		DisplayName  string `json:"display_name"`
+		DefaultEmail string `json:"default_email"`
 	}
 )
 
-const ID passport.SocialID = "YA"
+const ID passport.SocialID = "Yandex"
 
 // New creates and returns OAuth client.
-func New(cfg passport.Config) passport.OauthClient {
+func New(cfg passport.OAuthConfig) passport.OauthClient {
 	return &client{
 		cfg: oauth2.Config{
 			ClientID:     cfg.ClientID,
@@ -47,17 +38,43 @@ func New(cfg passport.Config) passport.OauthClient {
 	}
 }
 
-func (c *client) Account(ctx context.Context, code string) (status int, body io.ReadCloser, err error) {
+func OAuth(cfg passport.OAuthConfig) passport.Option {
+	return passport.OAuthClient(ID, New(cfg))
+}
+
+func (c *client) Token(ctx context.Context, code string) (*oauth2.Token, error) {
 	token, err := c.cfg.Exchange(ctx, code)
 	if err != nil {
-		return 0, nil, fmt.Errorf("exchange token: %w", err)
+		return nil, fmt.Errorf("exchange token: %w", err)
 	}
+	return token, nil
+}
 
+func (c *client) Account(ctx context.Context, token *oauth2.Token) (*passport.Account, error) {
 	const uriUserInfo = "https://login.yandex.ru/info?format=json"
 	resp, err := c.cfg.Client(ctx, token).Get(uriUserInfo)
 	if err != nil {
-		return 0, nil, fmt.Errorf("get user info from yandex: %w", err)
+		return nil, fmt.Errorf("get user from github: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, passport.OAuthError(resp.StatusCode, resp.Body)
 	}
 
-	return resp.StatusCode, resp.Body, nil
+	yandexAccount := account{}
+	err = json.NewDecoder(resp.Body).Decode(&yandexAccount)
+	if err != nil {
+		return nil, fmt.Errorf("decode json from github: %w", err)
+	}
+
+	return passportAccount(yandexAccount), nil
+}
+
+func passportAccount(yandexAccount account) *passport.Account {
+	return &passport.Account{
+		ID:    yandexAccount.ID,
+		Name:  yandexAccount.DisplayName,
+		Email: yandexAccount.DefaultEmail,
+	}
 }
