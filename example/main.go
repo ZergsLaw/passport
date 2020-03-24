@@ -16,12 +16,6 @@ var (
 		RedirectURI:  "https://oauth2.example.com/",
 		Scope:        []string{"YOU SCOPE"},
 	}
-	googleCfg = passport.OAuthConfig{
-		ClientID:     "GOOGLE_APP_ID",
-		ClientSecret: "GOOGLE_SECRET_KEY",
-		RedirectURI:  "https://oauth2.example.com/",
-		Scope:        []string{"YOU SCOPE"},
-	}
 )
 
 func main() {
