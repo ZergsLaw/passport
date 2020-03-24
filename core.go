@@ -28,6 +28,7 @@ type (
 		Name   string
 		Email  string
 		Avatar string
+		Login  string
 	}
 	// OAuthConfig for oauth client.
 	OAuthConfig struct {

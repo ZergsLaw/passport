@@ -20,6 +20,7 @@ type (
 		ID           string `json:"id"`
 		DisplayName  string `json:"display_name"`
 		DefaultEmail string `json:"default_email"`
+		Login        string `json:"login"`
 	}
 )
 
@@ -76,5 +77,6 @@ func passportAccount(yandexAccount account) *passport.Account {
 		ID:    yandexAccount.ID,
 		Name:  yandexAccount.DisplayName,
 		Email: yandexAccount.DefaultEmail,
+		Login: yandexAccount.Login,
 	}
 }

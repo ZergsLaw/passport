@@ -22,6 +22,7 @@ type (
 		AvatarURL string `json:"avatar_url"`
 		Name      string `json:"name"`
 		Email     string `json:"email"`
+		Login     string `json:"login"`
 	}
 )
 
@@ -79,5 +80,6 @@ func passportAccount(githubAccount account) *passport.Account {
 		Name:   githubAccount.Name,
 		Email:  githubAccount.Email,
 		Avatar: githubAccount.AvatarURL,
+		Login:  githubAccount.Login,
 	}
 }
